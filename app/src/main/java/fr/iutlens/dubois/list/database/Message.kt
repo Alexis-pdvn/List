@@ -15,8 +15,8 @@ data class Message(
         fun create(message : org.jivesoftware.smack.packet.Message) : Message {
             return  Message(
                     message.stanzaId,
-                    message.from.asBareJid().toString(),
-                    message.to.asBareJid().toString(),
+                    message.from.toString(),
+                    message.to.toString(),
                     message.body.toString()
             )
         }

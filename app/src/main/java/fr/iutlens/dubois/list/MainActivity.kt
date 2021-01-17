@@ -37,13 +37,13 @@ class MainActivity : AppCompatActivity() {
 
             if (it is Result.Success){
                 messageModel.updateConnection()
-                val fragment = RosterFragment()
+                val fragment = MultiChatFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .commitAllowingStateLoss()
             }
         }
-
+/*
         messageModel.selection.observe(this){
             Log.d("Selection",it.jid.toString())
             val fragment = MessageFragment()
@@ -52,10 +52,10 @@ class MainActivity : AppCompatActivity() {
                     .addToBackStack("OpenChat")
                 .commitAllowingStateLoss()
         }
-
+*/
 
         if(savedInstanceState == null) { // initial transaction should be wrapped like this
-            val fragment : Fragment = if (SmackStore.neverLogged(this))  LoginFragment() else RosterFragment()
+            val fragment : Fragment = if (SmackStore.neverLogged(this))  LoginFragment() else MultiChatFragment()
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commitAllowingStateLoss()

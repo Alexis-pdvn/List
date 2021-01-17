@@ -15,8 +15,10 @@ import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import fr.iutlens.dubois.list.database.Message
 import fr.iutlens.dubois.list.message.MessageAdapter
-import fr.iutlens.dubois.list.message.MessageModel
+import fr.iutlens.dubois.list.multichat.MultiChatAdapter
+import fr.iutlens.dubois.list.multichat.MultiChatModel
 import fr.iutlens.dubois.list.util.Result
+import fr.iutlens.dubois.list.util.SmackStore
 import fr.iutlens.dubois.list.util.Status
 import kotlinx.android.synthetic.main.fragment_message.*
 import kotlinx.android.synthetic.main.fragment_roster.*
@@ -25,10 +27,10 @@ import kotlinx.android.synthetic.main.fragment_roster.*
 /**
  * A simple [Fragment] subclass.
  */
-class MessageFragment : Fragment(), TextView.OnEditorActionListener {
+class MultiChatFragment : Fragment(), TextView.OnEditorActionListener {
     private var messageList: LiveData<List<Message>>? = null
-    private val messageModel: MessageModel by activityViewModels()
-    private lateinit var adapter: MessageAdapter
+    private val chatModel: MultiChatModel by activityViewModels()
+    private lateinit var adapter: MultiChatAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +47,7 @@ class MessageFragment : Fragment(), TextView.OnEditorActionListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_message, container, false)
+        return inflater.inflate(R.layout.fragment_multi_chat, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,41 +56,42 @@ class MessageFragment : Fragment(), TextView.OnEditorActionListener {
 
         recyclerViewChat.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = MessageAdapter(null, null)
+        adapter = MultiChatAdapter(null, null)
         recyclerViewChat.adapter = adapter
 
+
         Status.result.observe(viewLifecycleOwner){
-            if (it is Result.Success) messageModel.updateConnection()
+            updateChatManager()
         }
-
-        messageModel.selection.observe(viewLifecycleOwner){
-            textViewContact.text = it.jid
-            messageModel.updateConnection()
-
-            messageList?.removeObservers(viewLifecycleOwner)
-            messageList = messageModel.allMessagesWith(it.jid.toString())
-            messageList?.observe(viewLifecycleOwner) { list->
-                Log.d("Adapter", "new message")
-                adapter.submitList(list)
-                if (list.lastIndex != -1)
-                recyclerViewChat.smoothScrollToPosition(list.lastIndex)
-            }
-        }
+        updateChatManager()
 
         editTextMessage.setOnEditorActionListener(this)
 
         // Gestion de l'ouverture du clavier virtuel : on se positionne en bas de la liste
         view.viewTreeObserver.addOnGlobalLayoutListener {
             if (recyclerViewChat == null) return@addOnGlobalLayoutListener
-            val pos : Int? = (recyclerViewChat.adapter as MessageAdapter).currentList.lastIndex
+            val pos : Int? = (recyclerViewChat.adapter as MultiChatAdapter).currentList.lastIndex
             if (pos != null && pos != -1){ recyclerViewChat.smoothScrollToPosition(pos) }
         }
     }
 
+    private fun updateChatManager() {
+        if (Status.result.value is Result.Success) {
+            chatModel.updateConnection()
+            messageList = chatModel.allMessages()
+            messageList?.observe(viewLifecycleOwner) { list ->
+                adapter.submitList(list)
+                if (list.lastIndex != -1)
+                    recyclerViewChat.smoothScrollToPosition(list.lastIndex)
+            }
+        }
+    }
+
+
     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
         if(actionId == EditorInfo.IME_ACTION_SEND) {
-            val success : Boolean = messageModel.send(editTextMessage.text.toString())
-            if (success) editTextMessage.text.clear()
+            chatModel.send(editTextMessage.text.toString())
+            editTextMessage.text.clear()
             return true
         }
         return false

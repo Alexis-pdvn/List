@@ -11,6 +11,7 @@ import org.jivesoftware.smack.chat2.ChatManager
 import org.jivesoftware.smack.roster.Roster
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
+import org.jivesoftware.smackx.muc.MultiUserChatManager
 import org.jivesoftware.smackx.offline.OfflineMessageManager
 
 object SmackStore {
@@ -34,6 +35,13 @@ object SmackStore {
     val offlineMessageManager : OfflineMessageManager? get(){
         connection?.let { return OfflineMessageManager.getInstanceFor(connection) }
         return null
+    }
+
+    private var _multiChatManager : MultiUserChatManager? = null
+    val multiChatManager : MultiUserChatManager? get() {
+        if (_multiChatManager == null) _multiChatManager = MultiUserChatManager.getInstanceFor(connection)
+        Log.d("MultiChatManager", _chatManager.toString())
+        return _multiChatManager
     }
 
 

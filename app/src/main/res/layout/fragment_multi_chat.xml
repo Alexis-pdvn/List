@@ -6,16 +6,6 @@
     tools:context=".MessageFragment"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textViewContact"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSecondary"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:textSize="18sp"
-        tools:text="abcdef@ghi.jkl" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewChat"
         android:layout_width="match_parent"
@@ -31,8 +21,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Tapez votre message ici"
-        android:inputType="text"
-        android:imeOptions="actionSend"
         android:imeActionLabel="Envoyer"
-        />
+        android:imeOptions="actionSend"
+        android:inputType="text" />
 </LinearLayout>
